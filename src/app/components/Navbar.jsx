@@ -80,9 +80,8 @@ const Navbar = () => {
                     notifications.map((notification) => (
                       <div
                         key={notification.id}
-                        className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
-                          !notification.read ? 'bg-blue-50' : ''
-                        }`}
+                        className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50' : ''
+                          }`}
                       >
                         <div className="flex items-start gap-3">
                           <div className={`w-2 h-2 mt-2 rounded-full ${!notification.read ? 'bg-blue-600' : 'bg-gray-300'}`} />
@@ -98,49 +97,6 @@ const Navbar = () => {
                       <p className="text-sm">No notifications</p>
                     </div>
                   )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Profile */}
-        <div className="relative">
-          <button
-            onClick={() => setShowProfile(!showProfile)}
-            className="flex items-center gap-3 p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          >
-            <img
-              src={user?.avatar}
-              alt={user?.name}
-              className="w-8 h-8 rounded-full object-cover"
-            />
-            <div className="text-left hidden md:block">
-              <p className="text-sm font-medium text-gray-900">{user?.name}</p>
-              <p className="text-xs text-gray-500">{user?.role}</p>
-            </div>
-            <ChevronDown className="w-4 h-4 text-gray-600 hidden md:block" />
-          </button>
-
-          <AnimatePresence>
-            {showProfile && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden"
-              >
-                <div className="p-2">
-                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
-                    Profile Settings
-                  </button>
-                  <button className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg">
-                    Preferences
-                  </button>
-                  <div className="border-t border-gray-200 my-2" />
-                  <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg">
-                    Logout
-                  </button>
                 </div>
               </motion.div>
             )}

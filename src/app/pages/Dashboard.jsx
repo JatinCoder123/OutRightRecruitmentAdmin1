@@ -32,12 +32,12 @@ import {
 import { mockDashboardStats, mockPerformanceData, mockRoundPerformance, mockActivityFeed } from '../utils/mockData';
 
 const Dashboard = () => {
-  const { candidates } = useSelector((state) => state.candidates);
+  const { candidates, count } = useSelector((state) => state.candidates);
 
   const stats = [
     {
       title: 'Total Candidates',
-      value: mockDashboardStats.totalCandidates,
+      value: candidates.length,
       icon: Users,
       color: 'blue',
       trend: '+12%',
@@ -45,7 +45,7 @@ const Dashboard = () => {
     },
     {
       title: 'Active Tests',
-      value: mockDashboardStats.activeTests,
+      value: candidates.filter(c => c.is_test_end == 0).length,
       icon: FileCheck,
       color: 'purple',
       trend: '+8%',

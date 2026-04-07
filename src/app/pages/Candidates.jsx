@@ -15,13 +15,14 @@ const Candidates = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { candidates, filters } = useSelector((state) => state.candidates);
-
+  const { roles } = useSelector((state) => state.roles);
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split("T")[0] // today
+  );
   const [searchTerm, setSearchTerm] = useState('');
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    dispatch(fetchCandidates());
-  }, [dispatch]);
+
 
   // 🔥 Dynamic Status Logic
   const getCandidateStatus = (candidate) => {
@@ -33,36 +34,48 @@ const Candidates = () => {
   const filteredCandidates = useMemo(() => {
     let filtered = [...candidates];
 
-    // Search
+    // 🔍 Search
     if (searchTerm) {
-      filtered = filterBySearch(filtered, searchTerm, ['first_name', 'email', 'role']);
+      filtered = filterBySearch(filtered, searchTerm, [
+        "first_name",
+        "email",
+        "role",
+      ]);
     }
 
-    // Status filter
-    if (filters.status !== 'all') {
+    // 🎯 Status
+    if (filters.status !== "all") {
       filtered = filtered.filter(
         (c) => getCandidateStatus(c) === filters.status
       );
     }
 
-    // Role filter
-    if (filters.role !== 'all') {
-      filtered = filtered.filter((c) => c.role === filters.role);
+    // 🎯 Role
+    if (filters.role !== "all") {
+      filtered = filtered.filter((c) => c.role_id == filters.role);
     }
 
-    // Round filter
-    if (filters.round !== 'all') {
-      filtered = filtered.filter((c) => c.current_round === filters.round);
+    // 🎯 Round
+    if (filters.round !== "all") {
+      filtered = filtered.filter((c) => c.current_round == filters.round);
+    }
+
+    // 📅 DATE FILTER (🔥 MAIN LOGIC)
+    if (selectedDate) {
+      const selected = new Date(selectedDate);
+
+      filtered = filtered.filter((c) => {
+        const created = new Date(c.created_at);
+        return created <= selected; // show till selected date
+      });
     }
 
     return filtered;
-  }, [candidates, searchTerm, filters]);
-
-  const uniqueRoles = [...new Set(candidates.map((c) => c.role))];
-  const uniqueRounds = [...new Set(candidates.map((c) => c.current_round))];
+  }, [candidates, searchTerm, filters, selectedDate]);
 
   const handleClearFilters = () => {
     setSearchTerm('');
+    setSelectedDate(new Date().toISOString().split("T")[0])
     dispatch(clearFilters());
   };
 
@@ -79,7 +92,7 @@ const Candidates = () => {
       {/* Filters */}
       <Card>
         <CardContent className="p-6">
-          <div className="space-y-4">
+          <div className="space-y-4 p-2">
             <div className="flex items-center gap-4">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -113,6 +126,17 @@ const Candidates = () => {
                 className="grid grid-cols-1 md:grid-cols-4 gap-4 pt-4 border-t border-gray-200"
               >
                 <div>
+                  <label className="text-sm font-medium text-gray-700 mb-2 block">
+                    Select Date
+                  </label>
+
+                  <Input
+                    type="date"
+                    value={selectedDate || ""}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                  />
+                </div>
+                <div>
                   <label className="text-sm font-medium text-gray-700 mb-2 block">Status</label>
                   <Select
                     value={filters.status}
@@ -132,8 +156,8 @@ const Candidates = () => {
                     onChange={(e) => dispatch(setFilters({ role: e.target.value }))}
                   >
                     <option value="all">All Roles</option>
-                    {uniqueRoles.map((role) => (
-                      <option key={role} value={role}>{role}</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>{role.title}</option>
                     ))}
                   </Select>
                 </div>
@@ -145,7 +169,7 @@ const Candidates = () => {
                     onChange={(e) => dispatch(setFilters({ round: e.target.value }))}
                   >
                     <option value="all">All Rounds</option>
-                    {uniqueRounds.map((round) => (
+                    {[1, 2, 3].map((round) => (
                       <option key={round} value={round}>{round}</option>
                     ))}
                   </Select>
@@ -190,7 +214,6 @@ const Candidates = () => {
                   <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Experience</th>
                   <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Status</th>
                   <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Round</th>
-                  <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Score</th>
                   <th className="px-6 py-3 text-left text-xs text-gray-500 uppercase">Applied</th>
                 </tr>
               </thead>
@@ -230,7 +253,7 @@ const Candidates = () => {
                       </td>
 
                       {/* Role */}
-                      <td className="px-6 py-4">{candidate.role_id}</td>
+                      <td className="px-6 py-4">{roles.find(r => r.id == candidate.role_id)?.title}</td>
 
                       {/* Skills */}
                       <td className="px-6 py-4">
@@ -266,12 +289,9 @@ const Candidates = () => {
                       </td>
 
                       {/* Round */}
-                      <td className="px-6 py-4">{candidate.current_round}</td>
+                      <td className="px-6 py-4">{candidate.current_round == 1 ? "Aptitude" : candidate.current_round == 2 ? "Role Based" : "DSA"}</td>
 
-                      {/* Score */}
-                      <td className="px-6 py-4 font-semibold">
-                        {candidate.overallScore}%
-                      </td>
+
 
                       {/* Date */}
                       <td className="px-6 py-4 text-gray-500">

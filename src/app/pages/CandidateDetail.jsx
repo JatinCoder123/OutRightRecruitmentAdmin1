@@ -12,7 +12,7 @@ import {
   CheckCircle,
   Circle,
 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Badge } from '../components/ui/badge';
 import * as Tabs from '@radix-ui/react-tabs';
@@ -22,9 +22,10 @@ const CandidateDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { candidates } = useSelector((state) => state.candidates);
+  const { roles } = useSelector((state) => state.roles);
   const [activeTab, setActiveTab] = useState('overview');
-  
-  const candidate = candidates.find((c) => c.id === id);
+
+  const candidate = candidates.find((c) => c.id == id);
 
   if (!candidate) {
     return (
@@ -37,20 +38,20 @@ const CandidateDetail = () => {
   const rounds = [
     {
       name: 'Aptitude',
-      status: candidate.aptitudeScore > 0 ? 'completed' : 'pending',
-      score: candidate.aptitudeScore,
+      status: candidate.apti_result !== null ? 'completed' : 'pending',
+      score: candidate.apti_result,
       timeTaken: '45 min',
     },
     {
       name: 'Role',
-      status: candidate.roleScore > 0 ? 'completed' : candidate.aptitudeScore > 0 ? 'in-progress' : 'pending',
+      status: candidate.role_result > 0 !== null ? 'completed' : 'pending',
       score: candidate.roleScore,
       timeTaken: '60 min',
     },
     {
       name: 'DSA',
-      status: candidate.dsaScore > 0 ? 'completed' : candidate.roleScore > 0 ? 'in-progress' : 'pending',
-      score: candidate.dsaScore,
+      status: candidate.dsa_result !== null ? 'completed' : 'pending',
+      score: candidate.dsa_result,
       timeTaken: '90 min',
     },
   ];
@@ -71,12 +72,11 @@ const CandidateDetail = () => {
       {/* Profile Section */}
       <Card>
         <CardContent className="p-6">
-          <div className="flex items-start gap-6">
-            <img
-              src={candidate.avatar}
-              alt={candidate.name}
-              className="w-24 h-24 rounded-full object-cover"
-            />
+          <div className="flex items-start gap-6 p-4">
+            <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center text-white text-xl font-semibold">
+              {candidate.first_name?.[0]}
+              {candidate.last_name?.[0]}
+            </div>
             <div className="flex-1">
               <div className="flex items-start justify-between">
                 <div>
@@ -88,18 +88,18 @@ const CandidateDetail = () => {
                     </div>
                     <div className="flex items-center gap-2 text-gray-600">
                       <Briefcase className="w-4 h-4" />
-                      <span className="text-sm">{candidate.role}</span>
+                      <span className="text-sm">{roles.find(r => r.id == candidate.role_id).title}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 mt-2">
                     <div className="flex items-center gap-2 text-gray-600">
                       <Calendar className="w-4 h-4" />
-                      <span className="text-sm">Applied: {formatDate(candidate.appliedDate)}</span>
+                      <span className="text-sm">Applied: {formatDate(candidate.created_at)}</span>
                     </div>
-                    {candidate.completedDate && (
+                    {candidate.updated_at && (
                       <div className="flex items-center gap-2 text-gray-600">
                         <CheckCircle className="w-4 h-4" />
-                        <span className="text-sm">Completed: {formatDate(candidate.completedDate)}</span>
+                        <span className="text-sm">Last Update: {formatDate(candidate.updated_at)}</span>
                       </div>
                     )}
                   </div>
@@ -116,15 +116,15 @@ const CandidateDetail = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Aptitude</p>
-                  <p className="text-2xl font-bold text-blue-600 mt-1">{candidate.aptitudeScore}%</p>
+                  <p className="text-2xl font-bold text-blue-600 mt-1">{candidate.apti_result}%</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Role Test</p>
-                  <p className="text-2xl font-bold text-purple-600 mt-1">{candidate.roleScore}%</p>
+                  <p className="text-2xl font-bold text-purple-600 mt-1">{candidate.role_result}%</p>
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">DSA</p>
-                  <p className="text-2xl font-bold text-green-600 mt-1">{candidate.dsaScore}%</p>
+                  <p className="text-2xl font-bold text-green-600 mt-1">{candidate.dsa_result}%</p>
                 </div>
               </div>
             </div>
@@ -178,8 +178,8 @@ const CandidateDetail = () => {
                             {round.status === 'completed'
                               ? 'Completed successfully'
                               : round.status === 'in-progress'
-                              ? 'Currently in progress'
-                              : 'Not started yet'}
+                                ? 'Currently in progress'
+                                : 'Not started yet'}
                           </p>
                         </div>
                         <Badge className={getStatusColor(round.status)}>
@@ -240,7 +240,7 @@ const CandidateDetail = () => {
         <Tabs.Content value="overview" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Performance Summary</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 p-4">Performance Summary</h3>
               <p className="text-gray-600">
                 {candidate.name} has completed the assessment with an overall score of {candidate.overallScore}%.
                 Strong performance in role-specific questions with room for improvement in DSA section.
@@ -252,7 +252,7 @@ const CandidateDetail = () => {
         <Tabs.Content value="answers" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">Submitted Answers</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 p-4">Submitted Answers</h3>
               <p className="text-gray-600">Detailed answer review will be displayed here.</p>
             </CardContent>
           </Card>
@@ -261,7 +261,7 @@ const CandidateDetail = () => {
         <Tabs.Content value="feedback" className="mt-6">
           <Card>
             <CardContent className="p-6">
-              <h3 className="font-semibold text-gray-900 mb-4">AI-Generated Feedback</h3>
+              <h3 className="font-semibold text-gray-900 mb-4 p-4">AI-Generated Feedback</h3>
               <p className="text-gray-600">AI evaluation and personalized feedback will be shown here.</p>
             </CardContent>
           </Card>

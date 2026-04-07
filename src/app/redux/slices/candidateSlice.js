@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { candidateAPI } from '../../services/api';
-import { mockCandidates } from '../../utils/mockData';
 
 const initialState = {
   candidates: [],

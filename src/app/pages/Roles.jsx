@@ -7,7 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Badge } from '../components/ui/badge';
 import * as Dialog from '@radix-ui/react-dialog';
-import { createRole, updateRole, deleteRole, fetchRoles } from '../redux/slices/roleSlice';
+import { createRole, updateRole, deleteRole, } from '../redux/slices/roleSlice';
 import { toast } from 'sonner';
 
 const Roles = () => {
@@ -25,9 +25,7 @@ const Roles = () => {
 
   const [newSkill, setNewSkill] = useState('');
 
-  useEffect(() => {
-    dispatch(fetchRoles());
-  }, [dispatch]);
+
 
   const handleOpenModal = (role = null) => {
     if (role) {
